@@ -1,27 +1,34 @@
 import { PrismaClient } from "@prisma/client";
 
-const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClient | undefined;
-};
+const globalForPrisma = globalThis as Record<string, unknown>;
 
-function createPrismaClient(): PrismaClient {
-  // Use Turso (libSQL) in production when TURSO_DATABASE_URL is set
-  if (process.env.TURSO_DATABASE_URL) {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const { createClient } = require("@libsql/client");
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const { PrismaLibSql } = require("@prisma/adapter-libsql");
+function getPrismaClient(): PrismaClient {
+  if (globalForPrisma.__prisma) {
+    return globalForPrisma.__prisma as PrismaClient;
+  }
+
+  let client: PrismaClient;
+
+  if (process.env.TURSO_DATABASE_URL && process.env.TURSO_AUTH_TOKEN) {
+    // Use dynamic import via Function constructor to completely hide from bundler
+    const load = new Function("mod", "return require(mod)");
+    const { createClient } = load("@libsql/client");
+    const { PrismaLibSql } = load("@prisma/adapter-libsql");
     const libsql = createClient({
       url: process.env.TURSO_DATABASE_URL,
       authToken: process.env.TURSO_AUTH_TOKEN,
     });
     const adapter = new PrismaLibSql(libsql);
-    return new PrismaClient({ adapter } as never);
+    client = new PrismaClient({ adapter } as never);
+  } else {
+    client = new PrismaClient();
   }
-  // Fallback to local SQLite for development
-  return new PrismaClient();
+
+  if (process.env.NODE_ENV !== "production") {
+    globalForPrisma.__prisma = client;
+  }
+
+  return client;
 }
 
-export const prisma = globalForPrisma.prisma ?? createPrismaClient();
-
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+export const prisma = getPrismaClient();
