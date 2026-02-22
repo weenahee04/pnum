@@ -1,0 +1,384 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      String   @default("EMPLOYEE") // ADMIN | EMPLOYEE
+  department String  @default("")
+  position  String   @default("")
+  createdAt DateTime @default(now())
+
+  attendances     Attendance[]
+  dailyReports    DailyReport[]
+  surveysCreated  Survey[]         @relation("SurveyCreator")
+  surveyResponses SurveyResponse[] @relation("Respondent")
+  surveyTargets   SurveyResponse[] @relation("Target")
+  kpis            KPI[]
+
+  // LINE Notify
+  lineToken          String?
+  lineNotifyEnabled  Boolean  @default(false)
+
+  // New feature relations
+  checkIns           CheckIn[]
+  leaveRequests      LeaveRequest[]     @relation("LeaveRequester")
+  leaveApprovals     LeaveRequest[]     @relation("LeaveApprover")
+  leaveBalances      LeaveBalance[]
+  payrolls           Payroll[]
+  salary             Float              @default(0)
+  evaluationsGiven   Evaluation[]       @relation("Evaluator")
+  evaluationsReceived Evaluation[]      @relation("Evaluatee")
+  jobApplications    JobApplication[]   @relation("ApplicationReviewer")
+  trainingEnrollments TrainingEnrollment[]
+  seoProjects        SeoProject[]
+}
+
+model Attendance {
+  id        String   @id @default(cuid())
+  userId    String
+  date      String   // YYYY-MM-DD
+  status    String   // PRESENT | ABSENT | LATE | LEAVE
+  leaveType String?  // SICK | PERSONAL | VACATION
+  note      String?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+}
+
+model DailyReport {
+  id           String   @id @default(cuid())
+  userId       String
+  date         String   // YYYY-MM-DD
+  content      String
+  problems     String?
+  tomorrowPlan String?
+  createdAt    DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Survey {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  createdById String
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  createdBy  User             @relation("SurveyCreator", fields: [createdById], references: [id])
+  questions  SurveyQuestion[]
+  responses  SurveyResponse[]
+}
+
+model SurveyQuestion {
+  id       String @id @default(cuid())
+  surveyId String
+  question String
+  type     String // RATING | TEXT
+  order    Int    @default(0)
+
+  survey  Survey         @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+  answers SurveyAnswer[]
+}
+
+model SurveyResponse {
+  id           String   @id @default(cuid())
+  surveyId     String
+  respondentId String
+  targetUserId String
+  createdAt    DateTime @default(now())
+
+  survey    Survey         @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+  respondent User          @relation("Respondent", fields: [respondentId], references: [id])
+  target     User          @relation("Target", fields: [targetUserId], references: [id])
+  answers    SurveyAnswer[]
+
+  @@unique([surveyId, respondentId, targetUserId])
+}
+
+model SurveyAnswer {
+  id         String  @id @default(cuid())
+  responseId String
+  questionId String
+  rating     Int?
+  textAnswer String?
+
+  response SurveyResponse @relation(fields: [responseId], references: [id], onDelete: Cascade)
+  question SurveyQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+}
+
+model KPI {
+  id          String   @id @default(cuid())
+  userId      String
+  title       String
+  description String?
+  target      Float
+  weight      Float    // percentage weight
+  period      String   // e.g. "2026-Q1"
+  createdAt   DateTime @default(now())
+
+  user     User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  progress KPIProgress[]
+}
+
+model KPIProgress {
+  id           String   @id @default(cuid())
+  kpiId        String
+  currentValue Float
+  note         String?
+  updatedAt    DateTime @default(now())
+
+  kpi KPI @relation(fields: [kpiId], references: [id], onDelete: Cascade)
+}
+
+// ==========================================
+// 1. Smart Attendance (Check-in/out with GPS/QR)
+// ==========================================
+model CheckIn {
+  id          String   @id @default(cuid())
+  userId      String
+  date        String   // YYYY-MM-DD
+  checkInTime String?  // HH:mm:ss
+  checkOutTime String?
+  method      String   @default("MANUAL") // MANUAL | GPS | QR | FACE
+  latitude    Float?
+  longitude   Float?
+  status      String   @default("ON_TIME") // ON_TIME | LATE | EARLY_LEAVE
+  note        String?
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+}
+
+// ==========================================
+// 2. Leave Management
+// ==========================================
+model LeaveRequest {
+  id          String   @id @default(cuid())
+  userId      String
+  type        String   // SICK | PERSONAL | VACATION | MATERNITY | OTHER
+  startDate   String   // YYYY-MM-DD
+  endDate     String
+  days        Float    @default(1)
+  reason      String
+  status      String   @default("PENDING") // PENDING | APPROVED | REJECTED
+  approvedById String?
+  approvedAt  DateTime?
+  rejectReason String?
+  createdAt   DateTime @default(now())
+
+  user       User  @relation("LeaveRequester", fields: [userId], references: [id], onDelete: Cascade)
+  approvedBy User? @relation("LeaveApprover", fields: [approvedById], references: [id])
+}
+
+model LeaveBalance {
+  id        String @id @default(cuid())
+  userId    String
+  year      Int
+  type      String // SICK | PERSONAL | VACATION | MATERNITY
+  total     Float  @default(0)
+  used      Float  @default(0)
+  remaining Float  @default(0)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, year, type])
+}
+
+// ==========================================
+// 3. Payroll
+// ==========================================
+model Payroll {
+  id            String   @id @default(cuid())
+  userId        String
+  month         String   // YYYY-MM
+  baseSalary    Float    @default(0)
+  otHours       Float    @default(0)
+  otRate        Float    @default(0)
+  otAmount      Float    @default(0)
+  bonus         Float    @default(0)
+  allowance     Float    @default(0)
+  deduction     Float    @default(0)
+  socialSecurity Float   @default(0)
+  tax           Float    @default(0)
+  netSalary     Float    @default(0)
+  status        String   @default("DRAFT") // DRAFT | CONFIRMED | PAID
+  paidAt        DateTime?
+  createdAt     DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, month])
+}
+
+// ==========================================
+// 4. 360° Evaluation
+// ==========================================
+model Evaluation {
+  id           String   @id @default(cuid())
+  evaluatorId  String
+  evaluateeId  String
+  period       String   // e.g. "2026-Q1"
+  type         String   @default("PEER") // SELF | PEER | MANAGER | SUBORDINATE
+  scores       String   @default("{}") // JSON: { category: score }
+  strengths    String?
+  improvements String?
+  comments     String?
+  overallScore Float    @default(0)
+  createdAt    DateTime @default(now())
+
+  evaluator User @relation("Evaluator", fields: [evaluatorId], references: [id], onDelete: Cascade)
+  evaluatee User @relation("Evaluatee", fields: [evaluateeId], references: [id], onDelete: Cascade)
+
+  @@unique([evaluatorId, evaluateeId, period, type])
+}
+
+// ==========================================
+// 5. Recruitment
+// ==========================================
+model JobPosting {
+  id           String   @id @default(cuid())
+  title        String
+  department   String
+  description  String
+  requirements String
+  salary       String?  // e.g. "30,000 - 50,000"
+  location     String   @default("")
+  type         String   @default("FULL_TIME") // FULL_TIME | PART_TIME | CONTRACT
+  status       String   @default("OPEN") // OPEN | CLOSED | ON_HOLD
+  createdAt    DateTime @default(now())
+
+  applications JobApplication[]
+}
+
+model JobApplication {
+  id          String   @id @default(cuid())
+  postingId   String
+  name        String
+  email       String
+  phone       String   @default("")
+  resumeUrl   String?
+  coverLetter String?
+  stage       String   @default("APPLIED") // APPLIED | SCREENING | INTERVIEW | OFFER | HIRED | REJECTED
+  rating      Int?     // 1-5
+  notes       String?
+  reviewerId  String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now())
+
+  posting  JobPosting @relation(fields: [postingId], references: [id], onDelete: Cascade)
+  reviewer User?      @relation("ApplicationReviewer", fields: [reviewerId], references: [id])
+}
+
+// ==========================================
+// 6. Training
+// ==========================================
+model TrainingCourse {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  instructor  String   @default("")
+  category    String   @default("GENERAL") // GENERAL | TECHNICAL | SOFT_SKILL | COMPLIANCE
+  duration    String   @default("") // e.g. "8 hours"
+  maxSeats    Int      @default(30)
+  startDate   String?  // YYYY-MM-DD
+  endDate     String?
+  status      String   @default("UPCOMING") // UPCOMING | IN_PROGRESS | COMPLETED | CANCELLED
+  createdAt   DateTime @default(now())
+
+  enrollments TrainingEnrollment[]
+}
+
+model TrainingEnrollment {
+  id         String   @id @default(cuid())
+  courseId   String
+  userId     String
+  status     String   @default("ENROLLED") // ENROLLED | IN_PROGRESS | COMPLETED | DROPPED
+  score      Float?   // exam/quiz score
+  feedback   String?
+  completedAt DateTime?
+  createdAt  DateTime @default(now())
+
+  course TrainingCourse @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  user   User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([courseId, userId])
+}
+
+model Banner {
+  id        String   @id @default(cuid())
+  title     String
+  imageUrl  String   // URL or base64 data
+  linkUrl   String?  // optional click-through link
+  order     Int      @default(0)
+  isActive  Boolean  @default(true)
+  startDate String?  // YYYY-MM-DD
+  endDate   String?  // YYYY-MM-DD
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+}
+
+// ==========================================
+// 7. SEO Analyzer
+// ==========================================
+model SeoProject {
+  id          String   @id @default(cuid())
+  name        String
+  url         String
+  createdById String
+  createdAt   DateTime @default(now())
+
+  createdBy   User          @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  audits      SeoAudit[]
+  keywords    SeoKeyword[]
+}
+
+model SeoAudit {
+  id          String   @id @default(cuid())
+  projectId   String
+  url         String
+  score       Int      @default(0)
+  results     String   @default("{}")
+  createdAt   DateTime @default(now())
+
+  project     SeoProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+model SeoKeyword {
+  id          String    @id @default(cuid())
+  projectId   String
+  keyword     String
+  currentRank Int?
+  bestRank    Int?
+  lastChecked DateTime?
+  createdAt   DateTime  @default(now())
+
+  project     SeoProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  rankings    SeoRanking[]
+
+  @@unique([projectId, keyword])
+}
+
+model SeoRanking {
+  id          String   @id @default(cuid())
+  keywordId   String
+  rank        Int
+  url         String?
+  checkedAt   DateTime @default(now())
+
+  keyword     SeoKeyword @relation(fields: [keywordId], references: [id], onDelete: Cascade)
+}
