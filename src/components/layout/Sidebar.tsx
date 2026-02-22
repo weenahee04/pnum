@@ -28,12 +28,14 @@ const mainMenu: MenuItem[] = [
   { label: "จัดการใบลา", icon: "event_busy", href: "/leave" },
   { label: "ขาด/ลา/มาสาย", icon: "event_available", href: "/attendance" },
   { label: "รายงานประจำวัน", icon: "description", href: "/reports" },
+  { label: "คู่มือการใช้งาน", icon: "menu_book", href: "/manual" },
 ];
 
 const hrMenu: MenuItem[] = [
   { label: "คำนวณเงินเดือน", icon: "payments", href: "/payroll" },
   { label: "สรรหาบุคลากร", icon: "person_search", href: "/recruitment" },
   { label: "ฝึกอบรม", icon: "school", href: "/training" },
+  { label: "Marketing Analytics", icon: "campaign", href: "/marketing" },
   { label: "SEO Analyzer", icon: "search_insights", href: "/seo" },
   { label: "แจ้งเตือน LINE", icon: "notifications", href: "/line-notify" },
 ];

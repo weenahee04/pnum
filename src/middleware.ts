@@ -23,5 +23,7 @@ export const config = {
     "/profile/:path*",
     "/line-notify/:path*",
     "/seo/:path*",
+    "/marketing/:path*",
+    "/manual/:path*",
   ],
 };

@@ -41,6 +41,7 @@ model User {
   jobApplications    JobApplication[]   @relation("ApplicationReviewer")
   trainingEnrollments TrainingEnrollment[]
   seoProjects        SeoProject[]
+  campaigns          Campaign[]         @relation("CampaignCreator")
 }
 
 model Attendance {
@@ -381,4 +382,71 @@ model SeoRanking {
   checkedAt   DateTime @default(now())
 
   keyword     SeoKeyword @relation(fields: [keywordId], references: [id], onDelete: Cascade)
+}
+
+// ==========================================
+// 8. Marketing Analytics & Ad Optimization
+// ==========================================
+model Campaign {
+  id          String   @id @default(cuid())
+  name        String
+  platform    String   // FACEBOOK | GOOGLE | TIKTOK | LINE | INSTAGRAM | YOUTUBE | OTHER
+  type        String   @default("AWARENESS") // AWARENESS | TRAFFIC | ENGAGEMENT | LEADS | SALES | RETARGETING
+  status      String   @default("DRAFT") // DRAFT | ACTIVE | PAUSED | COMPLETED | CANCELLED
+  objective   String?  // Campaign objective description
+  targetAudience String? // Target audience description
+  budget      Float    @default(0) // Total budget
+  spent       Float    @default(0) // Total spent
+  startDate   String?  // YYYY-MM-DD
+  endDate     String?
+  landingUrl  String?  // Landing page URL
+  notes       String?
+  createdById String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now())
+
+  createdBy   User              @relation("CampaignCreator", fields: [createdById], references: [id], onDelete: Cascade)
+  metrics     CampaignMetric[]
+  insights    MarketingInsight[]
+}
+
+model CampaignMetric {
+  id            String   @id @default(cuid())
+  campaignId    String
+  date          String   // YYYY-MM-DD
+  impressions   Int      @default(0)
+  reach         Int      @default(0)
+  clicks        Int      @default(0)
+  ctr           Float    @default(0) // Click-through rate %
+  cpc           Float    @default(0) // Cost per click
+  cpm           Float    @default(0) // Cost per 1000 impressions
+  conversions   Int      @default(0)
+  conversionRate Float   @default(0) // %
+  costPerConversion Float @default(0)
+  revenue       Float    @default(0)
+  roas          Float    @default(0) // Return on ad spend
+  spent         Float    @default(0) // Daily spend
+  engagement    Int      @default(0) // likes + comments + shares
+  videoViews    Int      @default(0)
+  leads         Int      @default(0)
+  createdAt     DateTime @default(now())
+
+  campaign Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@unique([campaignId, date])
+}
+
+model MarketingInsight {
+  id          String   @id @default(cuid())
+  campaignId  String?
+  type        String   // RECOMMENDATION | WARNING | OPPORTUNITY | PERFORMANCE
+  category    String   // BUDGET | AUDIENCE | CREATIVE | TIMING | PLATFORM | GENERAL
+  title       String
+  description String
+  priority    String   @default("MEDIUM") // HIGH | MEDIUM | LOW
+  actionable  Boolean  @default(true)
+  isRead      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  campaign Campaign? @relation(fields: [campaignId], references: [id], onDelete: Cascade)
 }
