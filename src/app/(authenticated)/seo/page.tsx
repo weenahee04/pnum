@@ -115,12 +115,12 @@ export default function SeoPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight">SEO Analyzer</h1>
-          <p className="mt-1 text-slate-500 font-medium">วิเคราะห์ SEO เว็บไซต์ ตรวจสอบ Audit และติดตาม Keyword Rankings</p>
+          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">SEO Analyzer</h1>
+          <p className="mt-1 text-sm sm:text-base text-slate-500 font-medium">วิเคราะห์ SEO เว็บไซต์ ตรวจสอบ Audit และติดตาม Keyword Rankings</p>
         </div>
-        <Button icon="add" onClick={() => setShowModal(true)}>สร้างโปรเจค</Button>
+        <Button icon="add" onClick={() => setShowModal(true)} className="w-full sm:w-auto flex-shrink-0">สร้างโปรเจค</Button>
       </div>
 
       {/* Stats */}

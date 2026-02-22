@@ -49,8 +49,8 @@ export default function Modal({
         className={`relative w-full ${maxWidth} bg-white rounded-2xl shadow-2xl animate-fade-in flex flex-col max-h-[90vh]`}
       >
         {title && (
-          <div className="sticky top-0 z-10 flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-white rounded-t-2xl">
-            <h2 className="text-lg font-bold text-slate-900">{title}</h2>
+          <div className="sticky top-0 z-10 flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-100 bg-white rounded-t-2xl">
+            <h2 className="text-base sm:text-lg font-bold text-slate-900">{title}</h2>
             <button
               onClick={onClose}
               className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
@@ -59,11 +59,11 @@ export default function Modal({
             </button>
           </div>
         )}
-        <div className="flex-1 overflow-y-auto custom-scrollbar p-6">
+        <div className="flex-1 overflow-y-auto custom-scrollbar p-4 sm:p-6">
           {children}
         </div>
         {footer && (
-          <div className="sticky bottom-0 z-10 flex items-center justify-end gap-3 px-6 py-4 border-t border-slate-100 bg-slate-50 rounded-b-2xl">
+          <div className="sticky bottom-0 z-10 flex items-center justify-end gap-3 px-4 sm:px-6 py-3 sm:py-4 border-t border-slate-100 bg-slate-50 rounded-b-2xl">
             {footer}
           </div>
         )}

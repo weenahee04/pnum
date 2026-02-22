@@ -162,12 +162,12 @@ export default function MarketingPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight">Marketing Analytics</h1>
-          <p className="mt-1 text-slate-500 font-medium">วิเคราะห์แคมเปญโฆษณา วัดผล ROI และรับคำแนะนำอัจฉริยะ</p>
+          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">Marketing Analytics</h1>
+          <p className="mt-1 text-sm sm:text-base text-slate-500 font-medium">วิเคราะห์แคมเปญโฆษณา วัดผล ROI และรับคำแนะนำอัจฉริยะ</p>
         </div>
-        <Button icon="add" onClick={() => setShowModal(true)}>สร้างแคมเปญ</Button>
+        <Button icon="add" onClick={() => setShowModal(true)} className="w-full sm:w-auto flex-shrink-0">สร้างแคมเปญ</Button>
       </div>
 
       {/* Overview Stats */}
@@ -210,40 +210,40 @@ export default function MarketingPage() {
                 className="bg-white rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow cursor-pointer group"
                 onClick={() => router.push(`/marketing/${campaign.id}`)}
               >
-                <div className="p-5">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center gap-3">
-                      <div className={`w-10 h-10 rounded-xl ${pf.color} flex items-center justify-center`}>
+                <div className="p-4 sm:p-5">
+                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 mb-3">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className={`w-10 h-10 rounded-xl ${pf.color} flex items-center justify-center flex-shrink-0`}>
                         <span className="material-symbols-outlined text-lg">{pf.icon}</span>
                       </div>
-                      <div>
-                        <h3 className="text-base font-bold text-slate-900 group-hover:text-primary transition-colors">{campaign.name}</h3>
+                      <div className="min-w-0">
+                        <h3 className="text-sm sm:text-base font-bold text-slate-900 group-hover:text-primary transition-colors truncate">{campaign.name}</h3>
                         <div className="flex items-center gap-2 mt-0.5">
                           <span className="text-xs text-slate-400">{pf.label}</span>
                           <span className="text-xs text-slate-300">|</span>
-                          <span className="text-xs text-slate-400">{typeLabels[campaign.type] || campaign.type}</span>
+                          <span className="text-xs text-slate-400 truncate">{typeLabels[campaign.type] || campaign.type}</span>
                         </div>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-shrink-0">
                       <Badge variant={st.variant}>{st.label}</Badge>
-                      <div className="opacity-0 group-hover:opacity-100 flex gap-1 transition-opacity">
+                      <div className="flex gap-1 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                         {campaign.status === "DRAFT" && (
-                          <button onClick={(e) => { e.stopPropagation(); handleStatusChange(campaign.id, "ACTIVE"); }} className="p-1 rounded text-green-500 hover:bg-green-50" title="เริ่มทำงาน">
+                          <button onClick={(e) => { e.stopPropagation(); handleStatusChange(campaign.id, "ACTIVE"); }} className="p-1.5 rounded text-green-500 hover:bg-green-50" title="เริ่มทำงาน">
                             <span className="material-symbols-outlined text-sm">play_arrow</span>
                           </button>
                         )}
                         {campaign.status === "ACTIVE" && (
-                          <button onClick={(e) => { e.stopPropagation(); handleStatusChange(campaign.id, "PAUSED"); }} className="p-1 rounded text-amber-500 hover:bg-amber-50" title="หยุดชั่วคราว">
+                          <button onClick={(e) => { e.stopPropagation(); handleStatusChange(campaign.id, "PAUSED"); }} className="p-1.5 rounded text-amber-500 hover:bg-amber-50" title="หยุดชั่วคราว">
                             <span className="material-symbols-outlined text-sm">pause</span>
                           </button>
                         )}
                         {campaign.status === "PAUSED" && (
-                          <button onClick={(e) => { e.stopPropagation(); handleStatusChange(campaign.id, "ACTIVE"); }} className="p-1 rounded text-green-500 hover:bg-green-50" title="เริ่มทำงานต่อ">
+                          <button onClick={(e) => { e.stopPropagation(); handleStatusChange(campaign.id, "ACTIVE"); }} className="p-1.5 rounded text-green-500 hover:bg-green-50" title="เริ่มทำงานต่อ">
                             <span className="material-symbols-outlined text-sm">play_arrow</span>
                           </button>
                         )}
-                        <button onClick={(e) => { e.stopPropagation(); handleDelete(campaign.id); }} className="p-1 rounded text-red-400 hover:bg-red-50" title="ลบ">
+                        <button onClick={(e) => { e.stopPropagation(); handleDelete(campaign.id); }} className="p-1.5 rounded text-red-400 hover:bg-red-50" title="ลบ">
                           <span className="material-symbols-outlined text-sm">delete</span>
                         </button>
                       </div>

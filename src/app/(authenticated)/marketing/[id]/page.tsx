@@ -180,28 +180,34 @@ export default function CampaignDetailPage() {
   return (
     <div>
       {/* Header */}
-      <div className="flex items-center gap-3 mb-2">
-        <button onClick={() => router.push("/marketing")} className="p-2 rounded-lg hover:bg-slate-100 transition-colors">
+      <div className="flex items-start gap-3 mb-2">
+        <button onClick={() => router.push("/marketing")} className="p-2 rounded-lg hover:bg-slate-100 transition-colors flex-shrink-0 mt-1">
           <span className="material-symbols-outlined text-slate-500">arrow_back</span>
         </button>
-        <div className="flex-1">
-          <h1 className="text-2xl font-black text-slate-900 tracking-tight">{campaign.name}</h1>
-          <div className="flex items-center gap-2 mt-0.5">
-            <span className="text-sm text-slate-400">{platformLabels[campaign.platform]}</span>
-            <span className="text-slate-300">|</span>
-            <span className="text-sm text-slate-400">{typeLabels[campaign.type]}</span>
+        <div className="flex-1 min-w-0">
+          <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight truncate">{campaign.name}</h1>
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-0.5">
+            <span className="text-xs sm:text-sm text-slate-400">{platformLabels[campaign.platform]}</span>
+            <span className="text-slate-300 hidden sm:inline">|</span>
+            <span className="text-xs sm:text-sm text-slate-400">{typeLabels[campaign.type]}</span>
             {campaign.startDate && (
               <>
-                <span className="text-slate-300">|</span>
-                <span className="text-sm text-slate-400">{campaign.startDate} — {campaign.endDate || "ไม่กำหนด"}</span>
+                <span className="text-slate-300 hidden sm:inline">|</span>
+                <span className="text-xs sm:text-sm text-slate-400">{campaign.startDate} — {campaign.endDate || "ไม่กำหนด"}</span>
               </>
             )}
           </div>
+          <div className="flex flex-wrap gap-2 mt-3 sm:hidden">
+            <Button variant="outline" icon="lightbulb" size="sm" isLoading={generatingInsights} onClick={handleGenerateInsights}>AI</Button>
+            <Button icon="add" size="sm" onClick={() => setShowMetricModal(true)}>เพิ่มข้อมูล</Button>
+          </div>
         </div>
-        <Button variant="outline" icon="lightbulb" isLoading={generatingInsights} onClick={handleGenerateInsights}>
-          วิเคราะห์ AI
-        </Button>
-        <Button icon="add" onClick={() => setShowMetricModal(true)}>เพิ่มข้อมูล</Button>
+        <div className="hidden sm:flex gap-2 flex-shrink-0">
+          <Button variant="outline" icon="lightbulb" isLoading={generatingInsights} onClick={handleGenerateInsights}>
+            วิเคราะห์ AI
+          </Button>
+          <Button icon="add" onClick={() => setShowMetricModal(true)}>เพิ่มข้อมูล</Button>
+        </div>
       </div>
 
       {/* Info Cards */}
@@ -223,17 +229,18 @@ export default function CampaignDetailPage() {
       )}
 
       {/* Tabs */}
-      <div className="flex gap-1 bg-slate-100 rounded-xl p-1 mb-6 mt-4">
+      <div className="flex gap-1 bg-slate-100 rounded-xl p-1 mb-6 mt-4 overflow-x-auto">
         {tabs.map((t) => (
           <button
             key={t.key}
             onClick={() => setTab(t.key)}
-            className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg text-sm font-bold transition-all ${
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 sm:px-4 rounded-lg text-xs sm:text-sm font-bold transition-all whitespace-nowrap ${
               tab === t.key ? "bg-white text-primary shadow-sm" : "text-slate-500 hover:text-slate-700"
             }`}
           >
-            <span className="material-symbols-outlined text-lg">{t.icon}</span>
-            {t.label}
+            <span className="material-symbols-outlined text-base sm:text-lg">{t.icon}</span>
+            <span className="hidden sm:inline">{t.label}</span>
+            <span className="sm:hidden">{t.key === "overview" ? "ภาพรวม" : t.key === "metrics" ? "รายวัน" : `AI (${campaign.insights.length})`}</span>
           </button>
         ))}
       </div>
@@ -405,16 +412,16 @@ export default function CampaignDetailPage() {
                 const cfg = insightTypeConfig[insight.type] || insightTypeConfig.RECOMMENDATION;
                 const pri = priorityConfig[insight.priority] || priorityConfig.MEDIUM;
                 return (
-                  <div key={insight.id} className={`${cfg.bg} border rounded-xl p-4`}>
-                    <div className="flex items-start gap-3">
-                      <span className={`material-symbols-outlined text-xl mt-0.5 ${cfg.color}`}>{cfg.icon}</span>
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <h3 className="font-bold text-slate-900">{insight.title}</h3>
+                  <div key={insight.id} className={`${cfg.bg} border rounded-xl p-3 sm:p-4`}>
+                    <div className="flex items-start gap-2 sm:gap-3">
+                      <span className={`material-symbols-outlined text-lg sm:text-xl mt-0.5 ${cfg.color} flex-shrink-0`}>{cfg.icon}</span>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mb-1">
+                          <h3 className="font-bold text-sm sm:text-base text-slate-900">{insight.title}</h3>
                           <Badge variant={pri.variant}>{pri.label}</Badge>
                           <Badge variant="neutral">{insight.category}</Badge>
                         </div>
-                        <p className="text-sm text-slate-600">{insight.description}</p>
+                        <p className="text-xs sm:text-sm text-slate-600">{insight.description}</p>
                       </div>
                     </div>
                   </div>

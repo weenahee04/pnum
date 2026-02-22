@@ -186,27 +186,27 @@ export default function SeoProjectPage() {
   return (
     <div>
       {/* Header */}
-      <div className="flex items-center gap-3 mb-2">
-        <button onClick={() => router.push("/seo")} className="p-2 rounded-lg hover:bg-slate-100 transition-colors">
+      <div className="flex items-start gap-3 mb-2">
+        <button onClick={() => router.push("/seo")} className="p-2 rounded-lg hover:bg-slate-100 transition-colors flex-shrink-0 mt-0.5">
           <span className="material-symbols-outlined text-slate-500">arrow_back</span>
         </button>
-        <div>
-          <h1 className="text-2xl font-black text-slate-900 tracking-tight">{project.name}</h1>
-          <p className="text-sm text-slate-400">{project.url}</p>
+        <div className="min-w-0">
+          <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight truncate">{project.name}</h1>
+          <p className="text-xs sm:text-sm text-slate-400 truncate">{project.url}</p>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 bg-slate-100 rounded-xl p-1 mb-6">
+      <div className="flex gap-1 bg-slate-100 rounded-xl p-1 mb-6 overflow-x-auto">
         {tabs.map((t) => (
           <button
             key={t.key}
             onClick={() => setTab(t.key)}
-            className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg text-sm font-bold transition-all ${
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 sm:px-4 rounded-lg text-xs sm:text-sm font-bold transition-all whitespace-nowrap ${
               tab === t.key ? "bg-white text-primary shadow-sm" : "text-slate-500 hover:text-slate-700"
             }`}
           >
-            <span className="material-symbols-outlined text-lg">{t.icon}</span>
+            <span className="material-symbols-outlined text-base sm:text-lg">{t.icon}</span>
             {t.label}
           </button>
         ))}
@@ -216,7 +216,7 @@ export default function SeoProjectPage() {
       {tab === "analyze" && (
         <div className="space-y-6">
           <Card>
-            <div className="flex gap-3">
+            <div className="flex flex-col sm:flex-row gap-3">
               <div className="flex-1">
                 <Input
                   label="URL ที่ต้องการวิเคราะห์"
@@ -224,10 +224,11 @@ export default function SeoProjectPage() {
                   placeholder="https://example.com"
                   value={analyzeUrl}
                   onChange={(e) => setAnalyzeUrl(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleAnalyze()}
                 />
               </div>
-              <div className="pt-6">
-                <Button icon="search" isLoading={analyzing} onClick={handleAnalyze}>วิเคราะห์</Button>
+              <div className="sm:pt-6">
+                <Button icon="search" isLoading={analyzing} onClick={handleAnalyze} className="w-full sm:w-auto">วิเคราะห์</Button>
               </div>
             </div>
           </Card>
@@ -457,22 +458,22 @@ export default function SeoProjectPage() {
       {tab === "audit" && (
         <div className="space-y-6">
           <Card>
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
                 <p className="text-sm font-bold text-slate-900">ตรวจสอบ SEO ของ {project.url}</p>
-                <p className="text-xs text-slate-400 mt-0.5">ตรวจ 20+ รายการ: Meta, OG, Headings, Images, Links, Content, Technical</p>
+                <p className="text-xs text-slate-400 mt-0.5">ตรวจ 45+ รายการ: Meta, OG, Twitter, Headings, Images, Links, Content, Technical, Security, Social</p>
               </div>
-              <Button icon="checklist" isLoading={auditing} onClick={handleAudit}>เริ่มตรวจ SEO</Button>
+              <Button icon="checklist" isLoading={auditing} onClick={handleAudit} className="w-full sm:w-auto flex-shrink-0">เริ่มตรวจ SEO</Button>
             </div>
           </Card>
 
           {auditScore !== null && (
-            <div className="flex items-center gap-6 p-6 bg-white rounded-xl border border-slate-200">
-              <div className={`w-24 h-24 rounded-2xl flex items-center justify-center ${auditScore >= 80 ? "bg-success" : auditScore >= 50 ? "bg-warning" : "bg-danger"}`}>
-                <span className="text-3xl font-black text-white">{auditScore}</span>
+            <div className="flex items-center gap-4 sm:gap-6 p-4 sm:p-6 bg-white rounded-xl border border-slate-200">
+              <div className={`w-16 h-16 sm:w-24 sm:h-24 rounded-2xl flex items-center justify-center flex-shrink-0 ${auditScore >= 80 ? "bg-success" : auditScore >= 50 ? "bg-warning" : "bg-danger"}`}>
+                <span className="text-2xl sm:text-3xl font-black text-white">{auditScore}</span>
               </div>
-              <div>
-                <h2 className="text-xl font-black text-slate-900">
+              <div className="min-w-0">
+                <h2 className="text-lg sm:text-xl font-black text-slate-900">
                   {auditScore >= 80 ? "ดีมาก! 🎉" : auditScore >= 50 ? "พอใช้ ⚠️" : "ต้องปรับปรุง ❌"}
                 </h2>
                 <p className="text-sm text-slate-500 mt-1">
@@ -535,7 +536,7 @@ export default function SeoProjectPage() {
       {tab === "keywords" && (
         <div className="space-y-6">
           <Card>
-            <div className="flex gap-3">
+            <div className="flex flex-col sm:flex-row gap-3">
               <div className="flex-1">
                 <Input
                   label="เพิ่ม Keyword ใหม่"
@@ -546,8 +547,8 @@ export default function SeoProjectPage() {
                   onKeyDown={(e) => e.key === "Enter" && handleAddKeyword()}
                 />
               </div>
-              <div className="pt-6">
-                <Button icon="add" size="sm" isLoading={addingKeyword} onClick={handleAddKeyword}>เพิ่ม</Button>
+              <div className="sm:pt-6">
+                <Button icon="add" size="sm" isLoading={addingKeyword} onClick={handleAddKeyword} className="w-full sm:w-auto">เพิ่ม</Button>
               </div>
             </div>
           </Card>
@@ -565,10 +566,10 @@ export default function SeoProjectPage() {
               <Card title={`Keywords (${project.keywords.length})`}>
                 <div className="space-y-2">
                   {project.keywords.map((kw) => (
-                    <div key={kw.id} className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
+                    <div key={kw.id} className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 p-3 bg-slate-50 rounded-lg">
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-bold text-slate-900">{kw.keyword}</p>
-                        <div className="flex items-center gap-3 mt-1">
+                        <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-1">
                           {kw.currentRank !== null ? (
                             <span className={`text-xs font-bold ${kw.currentRank <= 10 ? "text-success" : kw.currentRank <= 30 ? "text-warning" : "text-danger"}`}>
                               อันดับ #{kw.currentRank}
@@ -586,21 +587,24 @@ export default function SeoProjectPage() {
                           )}
                         </div>
                       </div>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        icon="search"
-                        isLoading={checkingKeyword === kw.id}
-                        onClick={() => handleCheckRank(kw.id)}
-                      >
-                        ตรวจอันดับ
-                      </Button>
-                      <button
-                        onClick={() => handleDeleteKeyword(kw.id)}
-                        className="p-1.5 rounded-lg text-slate-400 hover:text-danger hover:bg-danger-50 transition-colors"
-                      >
-                        <span className="material-symbols-outlined text-sm">delete</span>
-                      </button>
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          icon="search"
+                          isLoading={checkingKeyword === kw.id}
+                          onClick={() => handleCheckRank(kw.id)}
+                          className="flex-1 sm:flex-none"
+                        >
+                          ตรวจอันดับ
+                        </Button>
+                        <button
+                          onClick={() => handleDeleteKeyword(kw.id)}
+                          className="p-1.5 rounded-lg text-slate-400 hover:text-danger hover:bg-danger-50 transition-colors flex-shrink-0"
+                        >
+                          <span className="material-symbols-outlined text-sm">delete</span>
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>
