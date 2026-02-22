@@ -1,8 +1,7 @@
-import { execSync } from "child_process";
-import { randomBytes } from "node:crypto";
-import { writeFileSync, unlinkSync } from "fs";
-import { join } from "path";
+import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
+
+const prisma = new PrismaClient();
 
 async function main() {
   const adminPassword = await bcrypt.hash("admin123", 10);
@@ -15,31 +14,29 @@ async function main() {
     { name: "ประสิทธิ์ มั่นคง", email: "prasit@company.com", password: empPassword, role: "EMPLOYEE", department: "Finance", position: "Accountant" },
   ];
 
-  const statements = users.map((u) => {
-    const id = randomBytes(12).toString("hex").slice(0, 25);
-    const now = new Date().toISOString();
-    return `INSERT OR IGNORE INTO "User" ("id", "name", "email", "password", "role", "department", "position", "createdAt") VALUES ('${id}', '${u.name}', '${u.email}', '${u.password}', '${u.role}', '${u.department}', '${u.position}', '${now}');`;
-  });
-
-  const sql = statements.join("\n");
-  const tmpFile = join(__dirname, "seed.sql");
-  writeFileSync(tmpFile, sql, "utf-8");
-
-  try {
-    console.log("Seeding database...");
-    execSync(`npx prisma db execute --file prisma/seed.sql`, {
-      cwd: join(__dirname, ".."),
-      stdio: "inherit",
+  console.log("Seeding database...");
+  for (const u of users) {
+    await prisma.user.upsert({
+      where: { email: u.email },
+      update: {},
+      create: {
+        name: u.name,
+        email: u.email,
+        password: u.password,
+        role: u.role,
+        department: u.department,
+        position: u.position,
+      },
     });
-    console.log("Seed completed successfully!");
-    console.log("Users created:");
-    users.forEach((u) => console.log(`  - ${u.email} (${u.role})`));
-  } finally {
-    unlinkSync(tmpFile);
   }
+
+  console.log("Seed completed successfully!");
+  users.forEach((u) => console.log(`  - ${u.email} (${u.role})`));
 }
 
-main().catch((e) => {
-  console.error(e);
-  process.exit(1);
-});
+main()
+  .catch((e) => {
+    console.error(e);
+    process.exit(1);
+  })
+  .finally(() => prisma.$disconnect());
