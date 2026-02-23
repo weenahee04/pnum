@@ -28,6 +28,12 @@ export default function AuthenticatedLayout({
     return null;
   }
 
+  // LINE user ที่ยังไม่ verify → redirect ไปหน้ายืนยันตัวตน
+  if (session.user.needsVerification) {
+    router.push("/verify");
+    return null;
+  }
+
   return (
     <div className="min-h-screen bg-background-light">
       <Sidebar

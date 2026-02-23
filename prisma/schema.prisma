@@ -26,6 +26,11 @@ model User {
   surveyTargets   SurveyResponse[] @relation("Target")
   kpis            KPI[]
 
+  // LINE Login
+  lineUserId         String?  @unique
+  lineDisplayName    String?
+  lineAvatar         String?
+
   // LINE Notify
   lineToken          String?
   lineNotifyEnabled  Boolean  @default(false)

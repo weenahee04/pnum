@@ -12,6 +12,9 @@ declare module "next-auth" {
       name: string;
       email: string;
       role: string;
+      needsVerification: boolean;
+      lineUserId?: string;
+      provider: string;
     };
   }
 }
@@ -20,5 +23,10 @@ declare module "next-auth/jwt" {
   interface JWT {
     id: string;
     role: string;
+    needsVerification?: boolean;
+    lineUserId?: string;
+    lineDisplayName?: string;
+    lineAvatar?: string;
+    provider?: string;
   }
 }
