@@ -19,6 +19,7 @@ export async function GET() {
         role: true,
         department: true,
         position: true,
+        startDate: true,
         createdAt: true,
       },
       orderBy: { createdAt: "asc" },
@@ -39,7 +40,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { name, email, password, role, department, position } = body;
+    const { name, email, password, role, department, position, startDate } = body;
 
     if (!name || !email || !password) {
       return NextResponse.json({ error: "กรุณากรอกข้อมูลให้ครบ" }, { status: 400 });
@@ -60,6 +61,7 @@ export async function POST(request: NextRequest) {
         role: role || "EMPLOYEE",
         department: department || "",
         position: position || "",
+        startDate: startDate ? new Date(startDate) : null,
       },
     });
 

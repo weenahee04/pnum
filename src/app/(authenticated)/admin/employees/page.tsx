@@ -15,6 +15,7 @@ interface Employee {
   role: string;
   department: string;
   position: string;
+  startDate: string | null;
   createdAt: string;
 }
 
@@ -32,6 +33,7 @@ export default function AdminEmployeesPage() {
     role: "EMPLOYEE",
     department: "",
     position: "",
+    startDate: "",
   });
 
   const fetchEmployees = async () => {
@@ -67,7 +69,7 @@ export default function AdminEmployeesPage() {
       if (res.ok) {
         showToast("success", "เพิ่มพนักงานเรียบร้อยแล้ว");
         setShowModal(false);
-        setForm({ name: "", email: "", password: "", role: "EMPLOYEE", department: "", position: "" });
+        setForm({ name: "", email: "", password: "", role: "EMPLOYEE", department: "", position: "", startDate: "" });
         fetchEmployees();
       } else {
         const data = await res.json();
@@ -121,8 +123,8 @@ export default function AdminEmployeesPage() {
               <tr>
                 <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500 border-b border-slate-100 bg-slate-50/50 text-left">ชื่อ</th>
                 <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500 border-b border-slate-100 bg-slate-50/50 text-left">อีเมล</th>
-                <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500 border-b border-slate-100 bg-slate-50/50 text-left">แผนก</th>
                 <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500 border-b border-slate-100 bg-slate-50/50 text-left">ตำแหน่ง</th>
+                <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500 border-b border-slate-100 bg-slate-50/50 text-left">วันเริ่มงาน</th>
                 <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500 border-b border-slate-100 bg-slate-50/50 text-left">บทบาท</th>
                 <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500 border-b border-slate-100 bg-slate-50/50 text-left">จัดการ</th>
               </tr>
@@ -130,7 +132,7 @@ export default function AdminEmployeesPage() {
             <tbody>
               {employees.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-16 text-center">
+                  <td colSpan={7} className="px-6 py-16 text-center">
                     <div className="flex flex-col items-center gap-3">
                       <span className="material-symbols-outlined text-4xl text-slate-300">groups</span>
                       <span className="text-sm font-bold text-slate-400">ยังไม่มีพนักงาน</span>
@@ -149,8 +151,8 @@ export default function AdminEmployeesPage() {
                       </div>
                     </td>
                     <td className="px-6 py-4 text-sm text-slate-600 border-b border-slate-100">{emp.email}</td>
-                    <td className="px-6 py-4 text-sm text-slate-600 border-b border-slate-100">{emp.department || "-"}</td>
                     <td className="px-6 py-4 text-sm text-slate-600 border-b border-slate-100">{emp.position || "-"}</td>
+                    <td className="px-6 py-4 text-sm text-slate-600 border-b border-slate-100 whitespace-nowrap">{emp.startDate ? new Date(emp.startDate).toLocaleDateString("th-TH", { day: "numeric", month: "short", year: "numeric" }) : "-"}</td>
                     <td className="px-6 py-4 border-b border-slate-100">
                       <Badge variant={emp.role === "ADMIN" ? "primary" : "neutral"}>
                         {emp.role === "ADMIN" ? "ผู้ดูแล" : "พนักงาน"}
@@ -198,8 +200,9 @@ export default function AdminEmployeesPage() {
               <option value="ADMIN">ผู้ดูแลระบบ</option>
             </select>
           </div>
-          <Input label="แผนก" value={form.department} onChange={(e) => setForm({ ...form, department: e.target.value })} placeholder="Engineering" />
-          <Input label="ตำแหน่ง" value={form.position} onChange={(e) => setForm({ ...form, position: e.target.value })} placeholder="Software Developer" />
+          <Input label="ตำแหน่ง" value={form.position} onChange={(e) => setForm({ ...form, position: e.target.value })} placeholder="พนักงานขาย" />
+          <Input label="แผนก" value={form.department} onChange={(e) => setForm({ ...form, department: e.target.value })} placeholder="ฝ่ายขาย" />
+          <Input label="วันเริ่มงาน" type="date" value={form.startDate} onChange={(e) => setForm({ ...form, startDate: e.target.value })} />
         </div>
       </Modal>
     </div>

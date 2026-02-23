@@ -16,6 +16,7 @@ model User {
   role      String   @default("EMPLOYEE") // ADMIN | EMPLOYEE
   department String  @default("")
   position  String   @default("")
+  startDate DateTime?
   createdAt DateTime @default(now())
 
   attendances     Attendance[]
