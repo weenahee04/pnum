@@ -39,18 +39,24 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background-light p-4">
-      <div className="w-full max-w-md">
+    <div
+      className="min-h-screen flex items-center justify-center p-4 bg-cover bg-center bg-no-repeat relative"
+      style={{ backgroundImage: "url('/login-bg.jpg')" }}
+    >
+      {/* Dark overlay */}
+      <div className="absolute inset-0 bg-black/50" />
+
+      <div className="w-full max-w-md relative z-10">
         <div className="text-center mb-8">
-          <div className="w-16 h-16 rounded-2xl bg-primary mx-auto mb-4 flex items-center justify-center">
+          <div className="w-16 h-16 rounded-2xl bg-primary mx-auto mb-4 flex items-center justify-center shadow-lg">
             <span className="material-symbols-outlined text-white text-3xl">
               corporate_fare
             </span>
           </div>
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight">
+          <h1 className="text-3xl font-black text-white tracking-tight drop-shadow-lg">
             HR System
           </h1>
-          <p className="mt-1 text-slate-500 font-medium">
+          <p className="mt-1 text-white/80 font-medium drop-shadow">
             ระบบจัดการทรัพยากรบุคคล
           </p>
         </div>
